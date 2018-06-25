@@ -1278,7 +1278,7 @@ namespace Bahtinov_grabber_autofocus
         {
             string downloadURL = "";
             Version newVersion = null;
-            string xmlURL = "http://1cm69.uk/downloads/Tri-Bahtinov_Grabber/tribupdate.xml";
+            string xmlURL = "LINK TO tribupdate.xml TO GO HERE";
             XmlTextReader reader = null;
             try
             {
