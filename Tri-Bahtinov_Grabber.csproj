@@ -7,7 +7,7 @@
     <ProjectGuid>{E75BB1C0-494E-4874-90C5-73BDBB859E64}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AssemblyName>Tri-Bahtinov Grabber</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -15,6 +15,7 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,11 +50,21 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>ICON.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Tri_Bahtinov_Grabber_Autofocus</RootNamespace>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="ExtCursors">
+      <HintPath>..\..\ExtCursor_src\ExtCursor\bin\Release\ExtCursors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System" />
@@ -60,16 +72,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bahtinov_grabber_autofocus\About.cs">
+    <Compile Include="AP\Complex.cs" />
+    <Compile Include="AP\Math.cs" />
+    <Compile Include="AP\rcommstate.cs" />
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\About.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bahtinov_grabber_autofocus\About.Designer.cs">
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="Bahtinov_grabber_autofocus\Help.cs">
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\Help.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bahtinov_grabber_autofocus\Help.Designer.cs">
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\Help.Designer.cs">
       <DependentUpon>Help.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -87,34 +102,30 @@
     <Compile Include="leastsquares.cs" />
     <Compile Include="lq.cs" />
     <Compile Include="blas.cs" />
-    <Compile Include="AP\Complex.cs" />
-    <Compile Include="AP\rcommstate.cs" />
-    <Compile Include="AP\Math.cs" />
-    <Compile Include="Bahtinov_grabber_autofocus\AreaForm.cs">
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\AreaForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bahtinov_grabber_autofocus\MainForm.cs">
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Bahtinov_grabber_autofocus\Program.cs" />
-    <Compile Include="Bahtinov_grabber_autofocus\Grabber.cs" />
-    <Compile Include="Bahtinov_grabber_autofocus\LSQcalculator.cs" />
-    <Compile Include="Bahtinov_grabber_autofocus\Properties\Resources.cs" />
-    <Compile Include="Bahtinov_grabber_autofocus\Properties\Settings.cs" />
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\Program.cs" />
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\Grabber.cs" />
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\LSQcalculator.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Bahtinov_grabber_autofocus\About.resx">
+    <EmbeddedResource Include="Tri_Bahtinov_Grabber_Autofocus\About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Bahtinov_grabber_autofocus\AreaForm.resx">
+    <EmbeddedResource Include="Tri_Bahtinov_Grabber_Autofocus\AreaForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Bahtinov_grabber_autofocus\Help.resx">
+    <EmbeddedResource Include="Tri_Bahtinov_Grabber_Autofocus\Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Bahtinov_grabber_autofocus\MainForm.resx" />
-    <EmbeddedResource Include="Bahtinov_grabber_autofocus\Properties\Resources.resx" />
+    <EmbeddedResource Include="Tri_Bahtinov_Grabber_Autofocus\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -126,6 +137,15 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Debug\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Precision.cur" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ICON.ico" />
