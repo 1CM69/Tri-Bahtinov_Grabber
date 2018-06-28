@@ -9,6 +9,7 @@ using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml;
+using Microsoft.Win32;
 
 namespace Tri_Bahtinov_Grabber_Autofocus
 {
@@ -67,16 +68,19 @@ namespace Tri_Bahtinov_Grabber_Autofocus
     private ToolStripStatusLabel URLStripStatusLabel;
     private StatusStrip StatusBar;
     private Button HelpBTN;
-        private GroupBox groupboxMode;
-        private RadioButton RadioBTNmodeNight;
-        private RadioButton RadioBTNmodeReg;
-        private int errorcounter;
+    private GroupBox groupboxMode;
+    private RadioButton RadioBTNmodeNight;
+    private RadioButton RadioBTNmodeReg;
+    private int errorcounter;
         
 
     public MainForm()
     {
       this.InitializeComponent();
       this.GetRegistryValues();
+            //REMOVE ALL PREVIOUS OLD VERSION SETTINGS
+            Registry.CurrentUser.DeleteSubKey("SOFTWARE\\1CM69.Ltd\\Tri-Bahtinov Grabber\\1.0.0.0", false);
+            Registry.CurrentUser.DeleteSubKey("SOFTWARE\\1CM69.Ltd\\Tri-Bahtinov Grabber\\1.0.10.0", false);
         }
 
         protected override void Dispose(bool disposing)
