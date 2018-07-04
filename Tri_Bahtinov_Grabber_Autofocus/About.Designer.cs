@@ -42,6 +42,8 @@
             this.linkLabel4 = new System.Windows.Forms.LinkLabel();
             this.RegularMode = new System.Windows.Forms.CheckBox();
             this.NightMode = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.linkLabel5 = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // AboutOKButton
@@ -49,7 +51,7 @@
             this.AboutOKButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.AboutOKButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.AboutOKButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AboutOKButton.Location = new System.Drawing.Point(403, 140);
+            this.AboutOKButton.Location = new System.Drawing.Point(403, 158);
             this.AboutOKButton.Name = "AboutOKButton";
             this.AboutOKButton.Size = new System.Drawing.Size(76, 23);
             this.AboutOKButton.TabIndex = 0;
@@ -170,7 +172,7 @@
             // RegularMode
             // 
             this.RegularMode.AutoSize = true;
-            this.RegularMode.Location = new System.Drawing.Point(13, 145);
+            this.RegularMode.Location = new System.Drawing.Point(13, 161);
             this.RegularMode.Name = "RegularMode";
             this.RegularMode.Size = new System.Drawing.Size(90, 17);
             this.RegularMode.TabIndex = 11;
@@ -183,7 +185,7 @@
             // NightMode
             // 
             this.NightMode.AutoSize = true;
-            this.NightMode.Location = new System.Drawing.Point(100, 145);
+            this.NightMode.Location = new System.Drawing.Point(100, 160);
             this.NightMode.Name = "NightMode";
             this.NightMode.Size = new System.Drawing.Size(78, 17);
             this.NightMode.TabIndex = 12;
@@ -193,12 +195,36 @@
             this.NightMode.Visible = false;
             this.NightMode.CheckedChanged += new System.EventHandler(this.NightMode_CheckedChanged);
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(12, 130);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(258, 13);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "I have made my source code available here:";
+            // 
+            // linkLabel5
+            // 
+            this.linkLabel5.AutoSize = true;
+            this.linkLabel5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linkLabel5.Location = new System.Drawing.Point(269, 130);
+            this.linkLabel5.Name = "linkLabel5";
+            this.linkLabel5.Size = new System.Drawing.Size(285, 13);
+            this.linkLabel5.TabIndex = 14;
+            this.linkLabel5.TabStop = true;
+            this.linkLabel5.Text = "https://github.com/1CM69/Tri-Bahtinov_Grabber";
+            this.linkLabel5.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel5_LinkClicked);
+            // 
             // About
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
-            this.ClientSize = new System.Drawing.Size(866, 172);
+            this.ClientSize = new System.Drawing.Size(866, 189);
+            this.Controls.Add(this.linkLabel5);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.NightMode);
             this.Controls.Add(this.RegularMode);
             this.Controls.Add(this.linkLabel4);
@@ -239,5 +265,7 @@
         private System.Windows.Forms.LinkLabel linkLabel4;
         private System.Windows.Forms.CheckBox RegularMode;
         private System.Windows.Forms.CheckBox NightMode;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.LinkLabel linkLabel5;
     }
 }

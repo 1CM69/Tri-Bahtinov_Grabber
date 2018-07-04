@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Tri_Bahtinov_Grabber_Autofocus
@@ -14,24 +9,23 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         public Help()
         {
             InitializeComponent();
-            GetRegistryValues();
+            GetSettingsValues();
         }
 
-        private void GetRegistryValues()
+        private void GetSettingsValues()
         {
             try
             {
-                
-                this.RegularMode.Checked = Convert.ToBoolean(Application.UserAppDataRegistry.GetValue("RegularMode"));
-                this.NightMode.Checked = Convert.ToBoolean(Application.UserAppDataRegistry.GetValue("NightMode"));
+                this.RegularMode.Checked = Convert.ToBoolean(Properties.Settings.Default.Regular);
+                this.NightMode.Checked = Convert.ToBoolean(Properties.Settings.Default.Night);
 
             }
             catch (Exception ex)
             {
                 int num = (int)MessageBox.Show(ex.ToString());
-                Application.UserAppDataRegistry.SetValue("RegularMode", (object)this.RegularMode.Checked);
-                Application.UserAppDataRegistry.SetValue("NightMode", (object)this.NightMode.Checked);
-                
+                Properties.Settings.Default.Regular = RegularMode.Checked;
+                Properties.Settings.Default.Night = NightMode.Checked;
+                Properties.Settings.Default.Save();
             }
         }
 

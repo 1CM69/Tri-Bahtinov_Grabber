@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -10,11 +9,22 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml;
 using Microsoft.Win32;
+using System.Configuration;
+using System.Reflection;
 
 namespace Tri_Bahtinov_Grabber_Autofocus
 {
   public class MainForm : Form
   {
+    //***********************************
+    //***********************************
+    //**** THIS RELEASE IS v2.0.2.0 ****
+    //***********************************
+    //****** REMEMBER TO EDIT THIS ******
+    //***********************************
+    const string DeleteThisVersionDirectory = "2.0.1.0"; //**** Set this to the <Program Version> Directory to be Deleted on Upgrade, usually version prior to new release. ****
+    //***********************************
+    //***********************************
     private static int num_errorvalues = 150;
     private int yzero = 1;
     private float errortarget = 0.25f;
@@ -42,10 +52,11 @@ namespace Tri_Bahtinov_Grabber_Autofocus
     private CheckBox RedCheckBox;
     private CheckBox GreenCheckBox;
     private GroupBox RGBGroupBox;
-    private CheckBox RotatingFocusserCheckBox;
+    private CheckBox RotatingFocuserCheckBox;
     private bool logging_enabled;
     private bool text_on_bitmap;
     private Grabber bahtinov_grabber;
+    private SuperFocuser Focuser;
     private DateTime DateTimePrevious;
     private Bitmap buffered_picture;
     private float error_previous;
@@ -62,25 +73,39 @@ namespace Tri_Bahtinov_Grabber_Autofocus
     private Label str3aLabel;
     private Label str3bLabel;
     private Label str3cLabel;
-    private Button AboutBTN;
-    private Button UpdateBTN;
     private ToolStripStatusLabel CreditStripStatusLabel;
     private ToolStripStatusLabel URLStripStatusLabel;
     private StatusStrip StatusBar;
-    private Button HelpBTN;
     private GroupBox groupboxMode;
     private RadioButton RadioBTNmodeNight;
     private RadioButton RadioBTNmodeReg;
+    private GroupBox FocusControlGroupBox;
+    private Button ConnectToFocuserBTN;
+    private Button AutoFocusBTN;
+    private Button OUTfocusBTN;
+    private Button INfocusBTN;
+    private NumericUpDown AFSpeedNumericUpDown;
+    private NumericUpDown StepSizeNumericUpDown;
+    private MenuStrip BGMenu;
+    private ToolStripMenuItem MenuHelp;
+    private ToolStripMenuItem MenuAbout;
+    private ToolStripMenuItem MenuUpdate;
+    private Label AutoFocusSpeedLBL;
     private int errorcounter;
-        
-
+    
     public MainForm()
-    {
-      this.InitializeComponent();
-      this.GetRegistryValues();
-            //REMOVE ALL PREVIOUS OLD VERSION SETTINGS
-            Registry.CurrentUser.DeleteSubKey("SOFTWARE\\1CM69.Ltd\\Tri-Bahtinov Grabber\\1.0.0.0", false);
-            Registry.CurrentUser.DeleteSubKey("SOFTWARE\\1CM69.Ltd\\Tri-Bahtinov Grabber\\1.0.10.0", false);
+        {
+            
+            InitializeComponent();
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.Text = String.Format(this.Text, version.Major, version.Minor, version.Build);
+            GetSettingsValues();
+            //Remove Registry Entries For Earlier Versions of Software
+            Registry.CurrentUser.DeleteSubKeyTree("SOFTWARE\\1CM69.Ltd", false);
+            //Copy User Settings From Current Software Version to New Software Version
+            ApplicationUpdate();
+            EncryptConfigSection("userSettings/Tri_Bahtinov_Grabber_Autofocus.Properties.Settings");
+            GetSettingsValues();
         }
 
         protected override void Dispose(bool disposing)
@@ -90,19 +115,19 @@ namespace Tri_Bahtinov_Grabber_Autofocus
       base.Dispose(disposing);
     }
 
-    private void InitializeComponent()
-    {
+       private void InitializeComponent()
+       {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.StartButton = new System.Windows.Forms.Button();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.ScopeCamSetupGroupBox = new System.Windows.Forms.GroupBox();
             this.PixelSizeLabel = new System.Windows.Forms.Label();
-            this.RotatingFocusserCheckBox = new System.Windows.Forms.CheckBox();
             this.PixelSizeNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.DiameterLabel = new System.Windows.Forms.Label();
             this.DiameterNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.FocalLengthLabel = new System.Windows.Forms.Label();
             this.FocalLengthNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.RotatingFocuserCheckBox = new System.Windows.Forms.CheckBox();
             this.SoundCheckBox = new System.Windows.Forms.CheckBox();
             this.FocusErrorLabel = new System.Windows.Forms.Label();
             this.AverageFocusErrorLabel = new System.Windows.Forms.Label();
@@ -119,15 +144,24 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.str3aLabel = new System.Windows.Forms.Label();
             this.str3bLabel = new System.Windows.Forms.Label();
             this.str3cLabel = new System.Windows.Forms.Label();
-            this.AboutBTN = new System.Windows.Forms.Button();
-            this.UpdateBTN = new System.Windows.Forms.Button();
             this.StatusBar = new System.Windows.Forms.StatusStrip();
             this.CreditStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.URLStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.HelpBTN = new System.Windows.Forms.Button();
             this.groupboxMode = new System.Windows.Forms.GroupBox();
             this.RadioBTNmodeNight = new System.Windows.Forms.RadioButton();
             this.RadioBTNmodeReg = new System.Windows.Forms.RadioButton();
+            this.FocusControlGroupBox = new System.Windows.Forms.GroupBox();
+            this.ConnectToFocuserBTN = new System.Windows.Forms.Button();
+            this.AutoFocusSpeedLBL = new System.Windows.Forms.Label();
+            this.OUTfocusBTN = new System.Windows.Forms.Button();
+            this.AutoFocusBTN = new System.Windows.Forms.Button();
+            this.StepSizeNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.INfocusBTN = new System.Windows.Forms.Button();
+            this.AFSpeedNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.BGMenu = new System.Windows.Forms.MenuStrip();
+            this.MenuHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuUpdate = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.ScopeCamSetupGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PixelSizeNumericUpDown)).BeginInit();
@@ -136,13 +170,17 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.RGBGroupBox.SuspendLayout();
             this.StatusBar.SuspendLayout();
             this.groupboxMode.SuspendLayout();
+            this.FocusControlGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.StepSizeNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AFSpeedNumericUpDown)).BeginInit();
+            this.BGMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // StartButton
             // 
             this.StartButton.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.StartButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.StartButton.Location = new System.Drawing.Point(261, 35);
+            this.StartButton.Location = new System.Drawing.Point(247, 33);
             this.StartButton.MinimumSize = new System.Drawing.Size(245, 62);
             this.StartButton.Name = "StartButton";
             this.StartButton.Size = new System.Drawing.Size(245, 62);
@@ -153,7 +191,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             // pictureBox
             // 
-            this.pictureBox.Location = new System.Drawing.Point(261, 103);
+            this.pictureBox.Location = new System.Drawing.Point(247, 101);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(245, 230);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -163,16 +201,15 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // ScopeCamSetupGroupBox
             // 
             this.ScopeCamSetupGroupBox.Controls.Add(this.PixelSizeLabel);
-            this.ScopeCamSetupGroupBox.Controls.Add(this.RotatingFocusserCheckBox);
             this.ScopeCamSetupGroupBox.Controls.Add(this.PixelSizeNumericUpDown);
             this.ScopeCamSetupGroupBox.Controls.Add(this.DiameterLabel);
             this.ScopeCamSetupGroupBox.Controls.Add(this.DiameterNumericUpDown);
             this.ScopeCamSetupGroupBox.Controls.Add(this.FocalLengthLabel);
             this.ScopeCamSetupGroupBox.Controls.Add(this.FocalLengthNumericUpDown);
             this.ScopeCamSetupGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ScopeCamSetupGroupBox.Location = new System.Drawing.Point(9, 12);
+            this.ScopeCamSetupGroupBox.Location = new System.Drawing.Point(9, 27);
             this.ScopeCamSetupGroupBox.Name = "ScopeCamSetupGroupBox";
-            this.ScopeCamSetupGroupBox.Size = new System.Drawing.Size(188, 126);
+            this.ScopeCamSetupGroupBox.Size = new System.Drawing.Size(188, 103);
             this.ScopeCamSetupGroupBox.TabIndex = 7;
             this.ScopeCamSetupGroupBox.TabStop = false;
             this.ScopeCamSetupGroupBox.Text = "Telescope && Camera Setup";
@@ -185,18 +222,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.PixelSizeLabel.Size = new System.Drawing.Size(90, 13);
             this.PixelSizeLabel.TabIndex = 5;
             this.PixelSizeLabel.Text = "Pixel Size (μm)";
-            // 
-            // RotatingFocusserCheckBox
-            // 
-            this.RotatingFocusserCheckBox.AutoSize = true;
-            this.RotatingFocusserCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.RotatingFocusserCheckBox.Location = new System.Drawing.Point(30, 98);
-            this.RotatingFocusserCheckBox.Name = "RotatingFocusserCheckBox";
-            this.RotatingFocusserCheckBox.Size = new System.Drawing.Size(121, 17);
-            this.RotatingFocusserCheckBox.TabIndex = 7;
-            this.RotatingFocusserCheckBox.Text = "Rotating Focuser";
-            this.RotatingFocusserCheckBox.UseVisualStyleBackColor = true;
-            this.RotatingFocusserCheckBox.CheckedChanged += new System.EventHandler(this.RotatingFocusserCheckBox_CheckedChanged);
             // 
             // PixelSizeNumericUpDown
             // 
@@ -211,11 +236,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.PixelSizeNumericUpDown.Name = "PixelSizeNumericUpDown";
             this.PixelSizeNumericUpDown.Size = new System.Drawing.Size(60, 20);
             this.PixelSizeNumericUpDown.TabIndex = 4;
-            this.PixelSizeNumericUpDown.Value = new decimal(new int[] {
-            375,
-            0,
-            0,
-            131072});
             this.PixelSizeNumericUpDown.ValueChanged += new System.EventHandler(this.PixelSizeNumericUpDown_ValueChanged);
             // 
             // DiameterLabel
@@ -240,11 +260,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.DiameterNumericUpDown.Name = "DiameterNumericUpDown";
             this.DiameterNumericUpDown.Size = new System.Drawing.Size(60, 20);
             this.DiameterNumericUpDown.TabIndex = 2;
-            this.DiameterNumericUpDown.Value = new decimal(new int[] {
-            235,
-            0,
-            0,
-            196608});
             this.DiameterNumericUpDown.ValueChanged += new System.EventHandler(this.DiameterNumericUpDown_ValueChanged);
             // 
             // FocalLengthLabel
@@ -269,23 +284,30 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.FocalLengthNumericUpDown.Name = "FocalLengthNumericUpDown";
             this.FocalLengthNumericUpDown.Size = new System.Drawing.Size(60, 20);
             this.FocalLengthNumericUpDown.TabIndex = 0;
-            this.FocalLengthNumericUpDown.Value = new decimal(new int[] {
-            2350,
-            0,
-            0,
-            196608});
             this.FocalLengthNumericUpDown.ValueChanged += new System.EventHandler(this.FocalLengthNumericUpDown_ValueChanged);
+            // 
+            // RotatingFocuserCheckBox
+            // 
+            this.RotatingFocuserCheckBox.AutoSize = true;
+            this.RotatingFocuserCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.RotatingFocuserCheckBox.Location = new System.Drawing.Point(34, 114);
+            this.RotatingFocuserCheckBox.Name = "RotatingFocuserCheckBox";
+            this.RotatingFocuserCheckBox.Size = new System.Drawing.Size(121, 17);
+            this.RotatingFocuserCheckBox.TabIndex = 7;
+            this.RotatingFocuserCheckBox.Text = "Rotating Focuser";
+            this.RotatingFocuserCheckBox.UseVisualStyleBackColor = true;
+            this.RotatingFocuserCheckBox.CheckedChanged += new System.EventHandler(this.RotatingFocuserCheckBox_CheckedChanged);
             // 
             // SoundCheckBox
             // 
             this.SoundCheckBox.AutoSize = true;
             this.SoundCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.SoundCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SoundCheckBox.Location = new System.Drawing.Point(261, 12);
+            this.SoundCheckBox.Location = new System.Drawing.Point(21, 19);
             this.SoundCheckBox.Name = "SoundCheckBox";
-            this.SoundCheckBox.Size = new System.Drawing.Size(245, 17);
+            this.SoundCheckBox.Size = new System.Drawing.Size(147, 17);
             this.SoundCheckBox.TabIndex = 8;
-            this.SoundCheckBox.Text = "Play Sound When Best Focus Is Found";
+            this.SoundCheckBox.Text = "Sound On Best Focus";
             this.SoundCheckBox.UseVisualStyleBackColor = true;
             this.SoundCheckBox.CheckedChanged += new System.EventHandler(this.SoundCheckBox_CheckedChanged);
             // 
@@ -293,7 +315,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.FocusErrorLabel.AutoSize = true;
             this.FocusErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FocusErrorLabel.Location = new System.Drawing.Point(11, 150);
+            this.FocusErrorLabel.Location = new System.Drawing.Point(11, 138);
             this.FocusErrorLabel.Name = "FocusErrorLabel";
             this.FocusErrorLabel.Size = new System.Drawing.Size(97, 13);
             this.FocusErrorLabel.TabIndex = 9;
@@ -303,7 +325,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.AverageFocusErrorLabel.AutoSize = true;
             this.AverageFocusErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AverageFocusErrorLabel.Location = new System.Drawing.Point(11, 175);
+            this.AverageFocusErrorLabel.Location = new System.Drawing.Point(11, 163);
             this.AverageFocusErrorLabel.Name = "AverageFocusErrorLabel";
             this.AverageFocusErrorLabel.Size = new System.Drawing.Size(148, 13);
             this.AverageFocusErrorLabel.TabIndex = 10;
@@ -313,7 +335,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.WithinCriticalFocusLabel.AutoSize = true;
             this.WithinCriticalFocusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.WithinCriticalFocusLabel.Location = new System.Drawing.Point(11, 229);
+            this.WithinCriticalFocusLabel.Location = new System.Drawing.Point(11, 217);
             this.WithinCriticalFocusLabel.Name = "WithinCriticalFocusLabel";
             this.WithinCriticalFocusLabel.Size = new System.Drawing.Size(124, 13);
             this.WithinCriticalFocusLabel.TabIndex = 11;
@@ -323,7 +345,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.AbsFocusErrorLabel.AutoSize = true;
             this.AbsFocusErrorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AbsFocusErrorLabel.Location = new System.Drawing.Point(11, 202);
+            this.AbsFocusErrorLabel.Location = new System.Drawing.Point(11, 190);
             this.AbsFocusErrorLabel.Name = "AbsFocusErrorLabel";
             this.AbsFocusErrorLabel.Size = new System.Drawing.Size(153, 13);
             this.AbsFocusErrorLabel.TabIndex = 12;
@@ -333,7 +355,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.MaskTypeLabel.AutoSize = true;
             this.MaskTypeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MaskTypeLabel.Location = new System.Drawing.Point(11, 257);
+            this.MaskTypeLabel.Location = new System.Drawing.Point(11, 245);
             this.MaskTypeLabel.Name = "MaskTypeLabel";
             this.MaskTypeLabel.Size = new System.Drawing.Size(69, 13);
             this.MaskTypeLabel.TabIndex = 13;
@@ -343,7 +365,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.MaskAnglesLabel.AutoSize = true;
             this.MaskAnglesLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MaskAnglesLabel.Location = new System.Drawing.Point(11, 282);
+            this.MaskAnglesLabel.Location = new System.Drawing.Point(11, 270);
             this.MaskAnglesLabel.Name = "MaskAnglesLabel";
             this.MaskAnglesLabel.Size = new System.Drawing.Size(79, 13);
             this.MaskAnglesLabel.TabIndex = 14;
@@ -394,7 +416,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.RGBGroupBox.Controls.Add(this.BlueCheckBox);
             this.RGBGroupBox.Controls.Add(this.RedCheckBox);
             this.RGBGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.RGBGroupBox.Location = new System.Drawing.Point(9, 307);
+            this.RGBGroupBox.Location = new System.Drawing.Point(9, 462);
             this.RGBGroupBox.Name = "RGBGroupBox";
             this.RGBGroupBox.Size = new System.Drawing.Size(188, 91);
             this.RGBGroupBox.TabIndex = 18;
@@ -407,7 +429,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.lblYES.BackColor = System.Drawing.Color.Black;
             this.lblYES.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblYES.ForeColor = System.Drawing.Color.Green;
-            this.lblYES.Location = new System.Drawing.Point(150, 456);
+            this.lblYES.Location = new System.Drawing.Point(243, 4);
             this.lblYES.Name = "lblYES";
             this.lblYES.Size = new System.Drawing.Size(38, 20);
             this.lblYES.TabIndex = 19;
@@ -420,7 +442,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.lblNO.BackColor = System.Drawing.Color.Black;
             this.lblNO.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNO.ForeColor = System.Drawing.Color.Red;
-            this.lblNO.Location = new System.Drawing.Point(150, 482);
+            this.lblNO.Location = new System.Drawing.Point(381, 0);
             this.lblNO.Name = "lblNO";
             this.lblNO.Size = new System.Drawing.Size(29, 20);
             this.lblNO.TabIndex = 20;
@@ -460,30 +482,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.str3cLabel.Size = new System.Drawing.Size(0, 13);
             this.str3cLabel.TabIndex = 23;
             // 
-            // AboutBTN
-            // 
-            this.AboutBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.AboutBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AboutBTN.Location = new System.Drawing.Point(10, 482);
-            this.AboutBTN.Name = "AboutBTN";
-            this.AboutBTN.Size = new System.Drawing.Size(134, 23);
-            this.AboutBTN.TabIndex = 24;
-            this.AboutBTN.Text = "About Tri-Bahtinov Grabber";
-            this.AboutBTN.UseVisualStyleBackColor = true;
-            this.AboutBTN.Click += new System.EventHandler(this.AboutBTN_Click);
-            // 
-            // UpdateBTN
-            // 
-            this.UpdateBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.UpdateBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.UpdateBTN.Location = new System.Drawing.Point(9, 511);
-            this.UpdateBTN.Name = "UpdateBTN";
-            this.UpdateBTN.Size = new System.Drawing.Size(134, 23);
-            this.UpdateBTN.TabIndex = 25;
-            this.UpdateBTN.Text = "Check For Update";
-            this.UpdateBTN.UseVisualStyleBackColor = true;
-            this.UpdateBTN.Click += new System.EventHandler(this.UpdateBTN_Click);
-            // 
             // StatusBar
             // 
             this.StatusBar.BackColor = System.Drawing.Color.Red;
@@ -491,7 +489,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.StatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CreditStripStatusLabel,
             this.URLStripStatusLabel});
-            this.StatusBar.Location = new System.Drawing.Point(0, 540);
+            this.StatusBar.Location = new System.Drawing.Point(0, 611);
             this.StatusBar.Name = "StatusBar";
             this.StatusBar.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.StatusBar.Size = new System.Drawing.Size(518, 22);
@@ -514,24 +512,12 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.URLStripStatusLabel.Text = "Bahtinov Grabber";
             this.URLStripStatusLabel.Click += new System.EventHandler(this.toolStripStatusLabel3_Click);
             // 
-            // HelpBTN
-            // 
-            this.HelpBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.HelpBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.HelpBTN.Location = new System.Drawing.Point(10, 453);
-            this.HelpBTN.Name = "HelpBTN";
-            this.HelpBTN.Size = new System.Drawing.Size(134, 23);
-            this.HelpBTN.TabIndex = 27;
-            this.HelpBTN.Text = "Help";
-            this.HelpBTN.UseVisualStyleBackColor = true;
-            this.HelpBTN.Click += new System.EventHandler(this.HelpBTN_Click);
-            // 
             // groupboxMode
             // 
             this.groupboxMode.Controls.Add(this.RadioBTNmodeNight);
             this.groupboxMode.Controls.Add(this.RadioBTNmodeReg);
             this.groupboxMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupboxMode.Location = new System.Drawing.Point(9, 405);
+            this.groupboxMode.Location = new System.Drawing.Point(9, 559);
             this.groupboxMode.Name = "groupboxMode";
             this.groupboxMode.Size = new System.Drawing.Size(188, 42);
             this.groupboxMode.TabIndex = 28;
@@ -556,7 +542,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             this.RadioBTNmodeReg.AutoSize = true;
             this.RadioBTNmodeReg.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.RadioBTNmodeReg.Location = new System.Drawing.Point(21, 16);
+            this.RadioBTNmodeReg.Location = new System.Drawing.Point(13, 16);
             this.RadioBTNmodeReg.Name = "RadioBTNmodeReg";
             this.RadioBTNmodeReg.Size = new System.Drawing.Size(68, 17);
             this.RadioBTNmodeReg.TabIndex = 0;
@@ -564,17 +550,192 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.RadioBTNmodeReg.UseVisualStyleBackColor = true;
             this.RadioBTNmodeReg.CheckedChanged += new System.EventHandler(this.RadioBTNmodeReg_CheckedChanged);
             // 
+            // FocusControlGroupBox
+            // 
+            this.FocusControlGroupBox.Controls.Add(this.ConnectToFocuserBTN);
+            this.FocusControlGroupBox.Controls.Add(this.AutoFocusSpeedLBL);
+            this.FocusControlGroupBox.Controls.Add(this.OUTfocusBTN);
+            this.FocusControlGroupBox.Controls.Add(this.RotatingFocuserCheckBox);
+            this.FocusControlGroupBox.Controls.Add(this.SoundCheckBox);
+            this.FocusControlGroupBox.Controls.Add(this.AutoFocusBTN);
+            this.FocusControlGroupBox.Controls.Add(this.StepSizeNumericUpDown);
+            this.FocusControlGroupBox.Controls.Add(this.INfocusBTN);
+            this.FocusControlGroupBox.Controls.Add(this.AFSpeedNumericUpDown);
+            this.FocusControlGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FocusControlGroupBox.Location = new System.Drawing.Point(9, 294);
+            this.FocusControlGroupBox.Name = "FocusControlGroupBox";
+            this.FocusControlGroupBox.Size = new System.Drawing.Size(188, 162);
+            this.FocusControlGroupBox.TabIndex = 29;
+            this.FocusControlGroupBox.TabStop = false;
+            this.FocusControlGroupBox.Text = "Focuser Control Panel";
+            // 
+            // ConnectToFocuserBTN
+            // 
+            this.ConnectToFocuserBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.ConnectToFocuserBTN.Location = new System.Drawing.Point(10, 133);
+            this.ConnectToFocuserBTN.Name = "ConnectToFocuserBTN";
+            this.ConnectToFocuserBTN.Size = new System.Drawing.Size(168, 20);
+            this.ConnectToFocuserBTN.TabIndex = 5;
+            this.ConnectToFocuserBTN.Text = "CONNECT TO FOCUSER";
+            this.ConnectToFocuserBTN.UseVisualStyleBackColor = true;
+            this.ConnectToFocuserBTN.Click += new System.EventHandler(this.ConnectToFocuserBTN_Click);
+            // 
+            // AutoFocusSpeedLBL
+            // 
+            this.AutoFocusSpeedLBL.AutoSize = true;
+            this.AutoFocusSpeedLBL.Location = new System.Drawing.Point(10, 96);
+            this.AutoFocusSpeedLBL.Name = "AutoFocusSpeedLBL";
+            this.AutoFocusSpeedLBL.Size = new System.Drawing.Size(111, 13);
+            this.AutoFocusSpeedLBL.TabIndex = 9;
+            this.AutoFocusSpeedLBL.Text = "AutoFocus Speed:";
+            // 
+            // OUTfocusBTN
+            // 
+            this.OUTfocusBTN.Enabled = false;
+            this.OUTfocusBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.OUTfocusBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.OUTfocusBTN.Location = new System.Drawing.Point(135, 42);
+            this.OUTfocusBTN.Name = "OUTfocusBTN";
+            this.OUTfocusBTN.Size = new System.Drawing.Size(44, 20);
+            this.OUTfocusBTN.TabIndex = 3;
+            this.OUTfocusBTN.Text = "+>>";
+            this.OUTfocusBTN.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.OUTfocusBTN.UseCompatibleTextRendering = true;
+            this.OUTfocusBTN.UseVisualStyleBackColor = true;
+            this.OUTfocusBTN.Click += new System.EventHandler(this.OUTfocusBTN_Click);
+            // 
+            // AutoFocusBTN
+            // 
+            this.AutoFocusBTN.Enabled = false;
+            this.AutoFocusBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.AutoFocusBTN.Location = new System.Drawing.Point(10, 68);
+            this.AutoFocusBTN.Name = "AutoFocusBTN";
+            this.AutoFocusBTN.Size = new System.Drawing.Size(168, 20);
+            this.AutoFocusBTN.TabIndex = 4;
+            this.AutoFocusBTN.Text = "AutoFocus";
+            this.AutoFocusBTN.UseVisualStyleBackColor = true;
+            this.AutoFocusBTN.Click += new System.EventHandler(this.AutoFocusBTN_Click);
+            // 
+            // StepSizeNumericUpDown
+            // 
+            this.StepSizeNumericUpDown.BackColor = System.Drawing.Color.Red;
+            this.StepSizeNumericUpDown.Enabled = false;
+            this.StepSizeNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.StepSizeNumericUpDown.Location = new System.Drawing.Point(64, 42);
+            this.StepSizeNumericUpDown.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.StepSizeNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.StepSizeNumericUpDown.Name = "StepSizeNumericUpDown";
+            this.StepSizeNumericUpDown.Size = new System.Drawing.Size(60, 20);
+            this.StepSizeNumericUpDown.TabIndex = 0;
+            this.StepSizeNumericUpDown.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.StepSizeNumericUpDown.ValueChanged += new System.EventHandler(this.StepSizeNumericUpDown_ValueChanged);
+            // 
+            // INfocusBTN
+            // 
+            this.INfocusBTN.Enabled = false;
+            this.INfocusBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.INfocusBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.INfocusBTN.Location = new System.Drawing.Point(11, 42);
+            this.INfocusBTN.Name = "INfocusBTN";
+            this.INfocusBTN.Size = new System.Drawing.Size(44, 20);
+            this.INfocusBTN.TabIndex = 2;
+            this.INfocusBTN.Text = "<<-";
+            this.INfocusBTN.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.INfocusBTN.UseCompatibleTextRendering = true;
+            this.INfocusBTN.UseVisualStyleBackColor = true;
+            this.INfocusBTN.Click += new System.EventHandler(this.INfocusBTN_Click);
+            // 
+            // AFSpeedNumericUpDown
+            // 
+            this.AFSpeedNumericUpDown.BackColor = System.Drawing.Color.Red;
+            this.AFSpeedNumericUpDown.DecimalPlaces = 2;
+            this.AFSpeedNumericUpDown.Enabled = false;
+            this.AFSpeedNumericUpDown.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.AFSpeedNumericUpDown.Location = new System.Drawing.Point(128, 93);
+            this.AFSpeedNumericUpDown.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            65536});
+            this.AFSpeedNumericUpDown.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.AFSpeedNumericUpDown.Name = "AFSpeedNumericUpDown";
+            this.AFSpeedNumericUpDown.Size = new System.Drawing.Size(50, 20);
+            this.AFSpeedNumericUpDown.TabIndex = 1;
+            this.AFSpeedNumericUpDown.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.AFSpeedNumericUpDown.ValueChanged += new System.EventHandler(this.AFSpeedNumericUpDown_ValueChanged);
+            // 
+            // BGMenu
+            // 
+            this.BGMenu.BackColor = System.Drawing.Color.Red;
+            this.BGMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuHelp,
+            this.MenuAbout,
+            this.MenuUpdate});
+            this.BGMenu.Location = new System.Drawing.Point(0, 0);
+            this.BGMenu.Name = "BGMenu";
+            this.BGMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.BGMenu.Size = new System.Drawing.Size(518, 24);
+            this.BGMenu.TabIndex = 30;
+            this.BGMenu.Text = "Menu";
+            // 
+            // MenuHelp
+            // 
+            this.MenuHelp.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuHelp.Name = "MenuHelp";
+            this.MenuHelp.Size = new System.Drawing.Size(45, 20);
+            this.MenuHelp.Text = "Help";
+            this.MenuHelp.Click += new System.EventHandler(this.HelpBTN_Click);
+            // 
+            // MenuAbout
+            // 
+            this.MenuAbout.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuAbout.Name = "MenuAbout";
+            this.MenuAbout.Size = new System.Drawing.Size(53, 20);
+            this.MenuAbout.Text = "About";
+            this.MenuAbout.Click += new System.EventHandler(this.AboutBTN_Click);
+            // 
+            // MenuUpdate
+            // 
+            this.MenuUpdate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuUpdate.Name = "MenuUpdate";
+            this.MenuUpdate.Size = new System.Drawing.Size(118, 20);
+            this.MenuUpdate.Text = "Check For Update";
+            this.MenuUpdate.Click += new System.EventHandler(this.UpdateBTN_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
-            this.ClientSize = new System.Drawing.Size(518, 562);
+            this.ClientSize = new System.Drawing.Size(518, 633);
+            this.Controls.Add(this.FocusControlGroupBox);
             this.Controls.Add(this.groupboxMode);
-            this.Controls.Add(this.HelpBTN);
             this.Controls.Add(this.StatusBar);
-            this.Controls.Add(this.UpdateBTN);
-            this.Controls.Add(this.AboutBTN);
+            this.Controls.Add(this.BGMenu);
             this.Controls.Add(this.str3cLabel);
             this.Controls.Add(this.str3bLabel);
             this.Controls.Add(this.str3aLabel);
@@ -587,18 +748,17 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.Controls.Add(this.WithinCriticalFocusLabel);
             this.Controls.Add(this.AverageFocusErrorLabel);
             this.Controls.Add(this.FocusErrorLabel);
-            this.Controls.Add(this.SoundCheckBox);
             this.Controls.Add(this.ScopeCamSetupGroupBox);
             this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.StartButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.BGMenu;
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(526, 601);
+            this.MinimumSize = new System.Drawing.Size(526, 672);
             this.Name = "MainForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "Tri-Bahtinov Grabber  v1.0 Build 20";
-            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Text = "Tri-Bahtinov Grabber v{0}.{1} Build {2}";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ScopeCamSetupGroupBox.ResumeLayout(false);
             this.ScopeCamSetupGroupBox.PerformLayout();
@@ -611,56 +771,90 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.StatusBar.PerformLayout();
             this.groupboxMode.ResumeLayout(false);
             this.groupboxMode.PerformLayout();
+            this.FocusControlGroupBox.ResumeLayout(false);
+            this.FocusControlGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.StepSizeNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AFSpeedNumericUpDown)).EndInit();
+            this.BGMenu.ResumeLayout(false);
+            this.BGMenu.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+       }
 
-    }
+        private void ApplicationUpdate()
+        {
+            string FullfilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+            string VersionDirectoryfilePath = Path.GetFullPath(Path.Combine(FullfilePath, @"..\..\" + DeleteThisVersionDirectory));
+            if (Properties.Settings.Default.UpdateSettings)
+            {
+                try
+                {
+                    Properties.Settings.Default.Upgrade();
+                    Properties.Settings.Default.UpdateSettings = false;
+                    Properties.Settings.Default.Save();
+                    Directory.Delete(VersionDirectoryfilePath, true);
+                }
+                catch{}
+            }
+        }
 
-    private void GetRegistryValues()
-    {
-      try
-      {
-        this.FocalLengthNumericUpDown.Value = Convert.ToDecimal(Application.UserAppDataRegistry.GetValue("FocalLength"));
-        this.DiameterNumericUpDown.Value = Convert.ToDecimal(Application.UserAppDataRegistry.GetValue("Diameter"));
-        this.PixelSizeNumericUpDown.Value = Convert.ToDecimal(Application.UserAppDataRegistry.GetValue("PixelSize"));
-        this.RotatingFocusserCheckBox.Checked = Convert.ToBoolean(Application.UserAppDataRegistry.GetValue("RotatingFocusser"));
-        this.SoundCheckBox.Checked = Convert.ToBoolean(Application.UserAppDataRegistry.GetValue("Sound"));
-      }
-      catch (Exception ex)
-      {
-        int num = (int) MessageBox.Show(ex.ToString());
-        this.FocalLengthNumericUpDown.Value = new Decimal(2032, 0, 0, false, (byte) 3);
-        this.DiameterNumericUpDown.Value = new Decimal(2032, 0, 0, false, (byte) 4);
-        this.PixelSizeNumericUpDown.Value = new Decimal(56, 0, 0, false, (byte) 1);
-        this.RotatingFocusserCheckBox.Checked = false;
-        this.SoundCheckBox.Checked = false;
-        Application.UserAppDataRegistry.SetValue("FocalLength", (object) this.FocalLengthNumericUpDown.Value);
-        Application.UserAppDataRegistry.SetValue("Diameter", (object) this.DiameterNumericUpDown.Value);
-        Application.UserAppDataRegistry.SetValue("PixelSize", (object) this.PixelSizeNumericUpDown.Value);
-        Application.UserAppDataRegistry.SetValue("RotatingFocusser", (object) this.RotatingFocusserCheckBox.Checked);
-        Application.UserAppDataRegistry.SetValue("Sound", (object) this.SoundCheckBox.Checked);
-      }
-    }
+       private void GetSettingsValues()
+       {
+           try
+           {
+              this.FocalLengthNumericUpDown.Value = Convert.ToDecimal(Properties.Settings.Default.FocalLength);
+              this.DiameterNumericUpDown.Value = Convert.ToDecimal(Properties.Settings.Default.Diameter);
+              this.PixelSizeNumericUpDown.Value = Convert.ToDecimal(Properties.Settings.Default.PixelSize);
+              this.RotatingFocuserCheckBox.Checked = Convert.ToBoolean(Properties.Settings.Default.RotFocuser);
+              this.SoundCheckBox.Checked = Convert.ToBoolean(Properties.Settings.Default.Sound);
+              this.RadioBTNmodeReg.Checked = Convert.ToBoolean(Properties.Settings.Default.Regular);
+              this.RadioBTNmodeNight.Checked = Convert.ToBoolean(Properties.Settings.Default.Night);
+              this.AFSpeedNumericUpDown.Value = Convert.ToDecimal(Properties.Settings.Default.AFSpeed);
+              this.StepSizeNumericUpDown.Value = Convert.ToDecimal(Properties.Settings.Default.StepSize);
+           }
+           catch
+           {
+              this.FocalLengthNumericUpDown.Value = new Decimal(2350, 0, 0, false, (byte) 3);
+              this.DiameterNumericUpDown.Value = new Decimal(2350, 0, 0, false, (byte) 4);
+              this.PixelSizeNumericUpDown.Value = new Decimal(375, 0, 0, false, (byte) 2);
+              this.RotatingFocuserCheckBox.Checked = false;
+              this.SoundCheckBox.Checked = false;
+              this.RadioBTNmodeReg.Checked = false;
+              this.RadioBTNmodeNight.Checked = true;
+              this.AFSpeedNumericUpDown.Value = new Decimal(5, 0, 0, false, (byte) 2);
+              this.StepSizeNumericUpDown.Value = new Decimal(100, 0, 0, false, (byte) 0);
+              Properties.Settings.Default.FocalLength = FocalLengthNumericUpDown.Value;
+              Properties.Settings.Default.Diameter = DiameterNumericUpDown.Value;
+              Properties.Settings.Default.PixelSize = PixelSizeNumericUpDown.Value;
+              Properties.Settings.Default.RotFocuser = RotatingFocuserCheckBox.Checked;
+              Properties.Settings.Default.Sound = SoundCheckBox.Checked;
+              Properties.Settings.Default.Regular = RadioBTNmodeReg.Checked;
+              Properties.Settings.Default.Night = RadioBTNmodeNight.Checked;
+              Properties.Settings.Default.AFSpeed = AFSpeedNumericUpDown.Value;
+              Properties.Settings.Default.StepSize = StepSizeNumericUpDown.Value;
+              Properties.Settings.Default.Save();
+           }
+       }
 
-    private void StartButton_Click(object sender, EventArgs e)
-    {
-      this.autofocus = 0;
-      this.centered = false;
-      if (this.bahtinov_grabber == null)
-      {
-        this.bahtinov_grabber = new Grabber();
-        this.bahtinov_grabber.picture = new Bitmap(128, 128);
-        this.startTimer();
-      }
-      else
-      {
-        this.update_timer.Stop();
-        this.bahtinov_angles = new float[3];
-        this.bahtinov_grabber.ReStart();
-        this.update_timer.Start();
-      }
-      this.errorcounter = 0;
-    }
+       private void StartButton_Click(object sender, EventArgs e)
+       {
+            this.autofocus = 0;
+            this.centered = false;
+            if (this.bahtinov_grabber == null)
+            {
+              this.bahtinov_grabber = new Grabber();
+              this.bahtinov_grabber.picture = new Bitmap(128, 128);
+              this.startTimer();
+            }
+            else
+            {
+              this.update_timer.Stop();
+              this.bahtinov_angles = new float[3];
+              this.bahtinov_grabber.ReStart();
+              this.update_timer.Start();
+            }
+            this.errorcounter = 0;
+       }
 
     private void logMessage(string logtext)
     {
@@ -668,7 +862,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
       {
         if (!this.logging_enabled)
           return;
-        File.AppendAllText("c:/bahtinovgrabber.txt", DateTime.Now.ToString() + " " + logtext + "\r\n");
+        File.AppendAllText("c:/tribahtinovgrabber.txt", DateTime.Now.ToString() + " " + logtext + "\r\n");
       }
       catch
       {
@@ -889,7 +1083,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
           }
         }
         this.DateTimePrevious = DateTime.Now;
-        if (this.RotatingFocusserCheckBox.Checked)
+        if (this.RotatingFocuserCheckBox.Checked)
           bahtinov_angles = new float[3];
       }
       else
@@ -1114,62 +1308,60 @@ namespace Tri_Bahtinov_Grabber_Autofocus
       }
       double num49 = (double) num47;
       int num50 = num48;
-      int num51 = 1;
-      int num52 = num50 + num51;
-      double num53 = (double) num50;
-      float num54 = (float) (num49 / num53);
+      int num51 = num50 + 1;
+      double num52 = (double)num50;
+      float num53 = (float)(num49 / num52);
       float x4 = x3 + (float) (((double) num39 - (double) x3) * 20.0);
-      float num55 = num36 + (float) (((double) num40 - (double) num36) * 20.0);
+      float num54 = num36 + (float)(((double)num40 - (double)num36) * 20.0);
       //Moveable Focus Indicator Circle
       pen.Color = Color.Cyan;
       pen.Width = (float) num31;
-      int num56 = num31 * 4;
-      graphics.DrawEllipse(pen, x4 - (float) num56, (float) height - num55 - (float) num56 + (float) this.yzero, (float) (num56 * 2), (float) (num56 * 2));
+      int num55 = num31 * 4;
+      graphics.DrawEllipse(pen, x4 - (float)num55, (float)height - num54 - (float)num55 + (float)this.yzero, (float)(num55 * 2), (float)(num55 * 2));
       pen.Width = (float) num31;
-      graphics.DrawLine(pen, new PointF(x4, (float) height - num55 + (float) this.yzero), new PointF(x3, (float) height - num36 + (float) this.yzero));
+      graphics.DrawLine(pen, new PointF(x4, (float)height - num54 + (float)this.yzero), new PointF(x3, (float)height - num36 + (float)this.yzero));
       Font font = new Font("Arial", 8f);
       SolidBrush solidBrush = new SolidBrush(Color.White);
       string str1 = "Focus Error: " + (num42 * num41).ToString("F2") + " px";
       this.logMessage(str1);
       if (this.text_on_bitmap)
-        graphics.DrawString(str1, font, (Brush) solidBrush, (PointF) new Point(10, 10));
+      graphics.DrawString(str1, font, (Brush) solidBrush, (PointF) new Point(10, 10));
       this.FocusErrorLabel.Text = str1;
-      string str2 = (MainForm.num_errorvalues / (1000 / this.updateinterval)).ToString() + "s Average: " + num54.ToString("F2") + " px";
+      string str2 = (MainForm.num_errorvalues / (1000 / this.updateinterval)).ToString() + "s Average: " + num53.ToString("F2") + " px";
       this.logMessage(str2);
       if (this.text_on_bitmap)
-        graphics.DrawString(str2, font, (Brush) solidBrush, (PointF) new Point(10, 20));
+      graphics.DrawString(str2, font, (Brush) solidBrush, (PointF) new Point(10, 20));
       this.AverageFocusErrorLabel.Text = str2;
-      float num57 = 57.29578f;
-      float num58 = (float) Math.PI / 180f;
-      float num59 = Math.Abs((float) (((double) numArray3[2] - (double) numArray3[0]) / 2.0));
-      string str3 = (num59 * num57).ToString("F0") + "\u00b0 Bahtinov";
-      float num60 = (float) (9.0 / 32.0 * ((double) (float) this.DiameterNumericUpDown.Value / ((double) (float) this.FocalLengthNumericUpDown.Value * (double) (float) this.PixelSizeNumericUpDown.Value)) * (1.0 + Math.Cos(45.0 * (double) num58) * (1.0 + Math.Tan((double) num59))));
-      string str3a = (180 - (num57 * numArray3[2])).ToString("F1")  + " ";
+      float num56 = 57.29578f;
+      float num57 = (float)Math.PI / 180f;
+      float num58 = Math.Abs((float)(((double)numArray3[2] - (double)numArray3[0]) / 2.0));
+      string str3 = (num58 * num56).ToString("F0") + "\u00b0 Bahtinov";
+      float num59 = (float)(9.0 / 32.0 * ((double)(float)this.DiameterNumericUpDown.Value / ((double)(float)this.FocalLengthNumericUpDown.Value * (double)(float)this.PixelSizeNumericUpDown.Value)) * (1.0 + Math.Cos(45.0 * (double)num57) * (1.0 + Math.Tan((double)num58))));
+      string str3a = (180 - (num56 * numArray3[2])).ToString("F1") + " ";
       this.str3aLabel.Text = str3a;
-      string str3b = (180 - (num57 * numArray3[1])).ToString("F1") + " ";
+      string str3b = (180 - (num56 * numArray3[1])).ToString("F1") + " ";
       this.str3bLabel.Text = str3b;
-      string str3c = (180 - (num57 * numArray3[0])).ToString("F1");
+      string str3c = (180 - (num56 * numArray3[0])).ToString("F1");
       this.str3cLabel.Text = str3c;
       this.MaskTypeLabel.Text = str3;
       this.MaskAnglesLabel.Text = "Angles: ";
-      str3aLabel.Location = new Point(60, 282);
-      str3bLabel.Location = new Point(105, 282);
-      str3cLabel.Location = new Point(150, 282);
-      float num61 = num42 * num41 / num60;
-      string str4 = "Absolute Focus Error: " + num61.ToString("F2") + " μm";
-                this.logMessage(str4);
-                if (this.text_on_bitmap)
-                    graphics.DrawString(str4, font, (Brush)solidBrush, (PointF)new Point(10, 30));
-                this.AbsFocusErrorLabel.Text = str4;
-            
-      float num62 = (float) (8.99999974990351E-07 * ((double) (float) this.FocalLengthNumericUpDown.Value / (double) (float) this.DiameterNumericUpDown.Value) * ((double) (float) this.FocalLengthNumericUpDown.Value / (double) (float) this.DiameterNumericUpDown.Value));
-      bool flag = Math.Abs((double) num61 * 1E-06) < (double) Math.Abs(num62);
+      str3aLabel.Location = new Point(60, 270);
+      str3bLabel.Location = new Point(105, 270);
+      str3cLabel.Location = new Point(150, 270);
+      float num60 = num42 * num41 / num59;
+      string str4 = "Absolute Focus Error: " + num60.ToString("F2") + " μm";
+      this.logMessage(str4);
+      if (this.text_on_bitmap)
+      graphics.DrawString(str4, font, (Brush)solidBrush, (PointF)new Point(10, 30));
+      this.AbsFocusErrorLabel.Text = str4;
+      float num61 = (float)(8.99999974990351E-07 * ((double)(float)this.FocalLengthNumericUpDown.Value / (double)(float)this.DiameterNumericUpDown.Value) * ((double)(float)this.FocalLengthNumericUpDown.Value / (double)(float)this.DiameterNumericUpDown.Value));
+      bool flag = Math.Abs((double)num60 * 1E-06) < (double)Math.Abs(num61);
             lblYES.Text = "\u2714";
             lblNO.Text = "X";
             if (flag == true)
             {
                 lblNO.Visible = false;
-                lblYES.Location = new Point(140, 227);
+                lblYES.Location = new Point(140, 215);
                 lblYES.Visible = true;
                 string str5y = "Within Critical Focus:";
                 this.logMessage(str5y);
@@ -1180,7 +1372,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             if (flag == false)
             {
                 lblYES.Visible = false;
-                lblNO.Location = new Point(140, 227);
+                lblNO.Location = new Point(140, 215);
                 lblNO.Visible = true;
                 string str5n = "Within Critical Focus:";
                 this.logMessage(str5n);
@@ -1210,8 +1402,109 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         this.bahtinov_grabber.areaForm.CurrentBottomRight.Y += (int) ((double) (bmp.Height / 2) - ((double) num36 + (double) num40) / 2.0);
         this.centered = true;
       }
-      this.centered = false;
-      if (!this.RotatingFocusserCheckBox.Checked)
+        this.centered = false;
+         try
+         {
+                switch (this.autofocus)
+                {
+                    case 0:
+                        this.AutoFocusBTN.Text = "AF OFF";
+                        this.logMessage("AF is OFF");
+                        break;
+                    case 1:
+                        this.AutoFocusBTN.Text = "AF ON: Start";
+                        this.error0 = num42 * num41;
+                        this.Focuser.Reset();
+                        if ((double)this.error0 > 100.0)
+                        {
+                            this.autofocus = 0;
+                            int num13 = (int)MessageBox.Show("Initial Focus Error > 100 PX, Autofocus Automatically Switched Off.");
+                            this.logMessage("AF ON, initial error = " + this.error0.ToString() + " px");
+                            this.logMessage("Initial Focus Error > 100 Pixels, Autofocus Automatically Switched Off.");
+                            break;
+                        }
+                        ++this.autofocus;
+                        this.logMessage("AF ON, initial error = " + this.error0.ToString() + " px");
+                        break;
+                    case 2:
+                        this.AutoFocusBTN.Text = "AF ON: Removing Backlash";
+                        this.logMessage("AF ON: remove backlash");
+                        this.Focuser.Reset();
+                        this.error1 = num42 * num41;
+                        if ((double)Math.Abs(this.error1 - this.error0) < 5.0 & !this.Focuser.Absolute)
+                        {
+                            if (!this.Focuser.IsMoving)
+                            {
+                                this.Focuser.Move(50);
+                                this.logMessage("move 50");
+                                break;
+                            }
+                            break;
+                        }
+                        this.Focuser.Reset();
+                        ++this.autofocus;
+                        break;
+                    case 3:
+                        this.AutoFocusBTN.Text = "AF ON: Determine Sensitivity";
+                        this.logMessage("AF ON: determine sensitivity");
+                        this.error2 = num42 * num41;
+                        if ((double)Math.Abs(this.error2 - this.error1) < 10.0)
+                        {
+                            if (!this.Focuser.IsMoving)
+                                this.Focuser.Move(50);
+                            this.logMessage("Move 50 more to determine sensitivity since error2-error1<10 px");
+                            this.logMessage("error2, error1= " + this.error2.ToString() + " " + this.error1.ToString());
+                            break;
+                        }
+                        this.sensitivity = (this.error2 - this.error1) / (float)this.Focuser.RelativePosition;
+                        this.error_previous = this.error;
+                        this.DateTimePrevious = DateTime.Now;
+                        ++this.autofocus;
+                        this.logMessage("Sensitivity determined: " + this.sensitivity.ToString() + " px/um");
+                        break;
+                    case 4:
+                        this.AutoFocusBTN.Text = "AF ON: Fine Focus";
+                        this.logMessage("Fine focussing");
+                        if (!this.Focuser.IsMoving)
+                        {
+                            TimeSpan timeSpan = DateTime.Now - this.DateTimePrevious;
+                            float num13 = (float)timeSpan.Seconds + (float)timeSpan.Milliseconds / 1000f;
+                            float num18 = 50f;
+                            float num19 = -1f / this.sensitivity;
+                            float num20 = 0.25f * num42;
+                            if ((double)num41 > 5.0)
+                                num20 = 1f * num42;
+                            if ((double)num41 > 10.0)
+                                num20 = 2f * num42;
+                            float num21 = 0.0f;
+                            float num22 = num53;
+                            float num23 = -0.0f;
+                            float num24 = (float)(((double)this.error - (double)this.error_previous) / ((double)this.sensitivity * (double)num13));
+                            float num25 = (float)((double)num19 * (double)num20 + (double)num21 * (double)num22 + (double)num23 * (double)num24);
+                            float num26 = -0.5f * num42 * num41 / this.sensitivity * (float)this.AFSpeedNumericUpDown.Value;
+                            if ((double)Math.Abs(num26) > (double)num18)
+                                num26 = num18 * num26 / Math.Abs(num26);
+                            this.Focuser.Move((int)num26);
+                            this.logMessage("Move focuser for fine focus with stepsize= " + num26.ToString());
+                            this.DateTimePrevious = DateTime.Now;
+                            this.error_previous = this.error;
+                        }
+                        if ((double)Math.Abs(num53) < 0.5 & (double)Math.Abs(num42 * num41) < 0.5)
+                        {
+                            ++this.autofocus;
+                            break;
+                        }
+                        break;
+                    case 5:
+                        this.AutoFocusBTN.Text = "AF Ready: " + (MainForm.num_errorvalues / (1000 / this.updateinterval)).ToString() + "s Error < " + this.errortarget.ToString() + " PX";
+                        this.logMessage("AF ready, error is small");
+                        break;
+                }
+         }
+         catch
+         {
+         }
+            if (!this.RotatingFocuserCheckBox.Checked)
         return;
       bahtinov_angles = new float[3];
     }
@@ -1227,31 +1520,83 @@ namespace Tri_Bahtinov_Grabber_Autofocus
 
     private void FocalLengthNumericUpDown_ValueChanged(object sender, EventArgs e)
     {
-      Application.UserAppDataRegistry.SetValue("FocalLength", (object) this.FocalLengthNumericUpDown.Value);
+            Properties.Settings.Default.FocalLength = FocalLengthNumericUpDown.Value;
+            Properties.Settings.Default.Save();
     }
 
     private void DiameterNumericUpDown_ValueChanged(object sender, EventArgs e)
     {
-      Application.UserAppDataRegistry.SetValue("Diameter", (object) this.DiameterNumericUpDown.Value);
+            Properties.Settings.Default.Diameter = DiameterNumericUpDown.Value;
+            Properties.Settings.Default.Save(); ;
     }
 
     private void PixelSizeNumericUpDown_ValueChanged(object sender, EventArgs e)
     {
-      Application.UserAppDataRegistry.SetValue("PixelSize", (object) this.PixelSizeNumericUpDown.Value);
+            Properties.Settings.Default.PixelSize = PixelSizeNumericUpDown.Value;
+            Properties.Settings.Default.Save();
+        }
+
+    private void RotatingFocuserCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+            Properties.Settings.Default.RotFocuser = RotatingFocuserCheckBox.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+    private void StepSizeNumericUpDown_ValueChanged(object sender, EventArgs e)
+    {
+            Properties.Settings.Default.StepSize = StepSizeNumericUpDown.Value;
+            Properties.Settings.Default.Save();
     }
 
-    private void RotatingFocusserCheckBox_CheckedChanged(object sender, EventArgs e)
+    private void AFSpeedNumericUpDown_ValueChanged(object sender, EventArgs e)
     {
-      Application.UserAppDataRegistry.SetValue("RotatingFocusser", (object) this.RotatingFocusserCheckBox.Checked);
+            Properties.Settings.Default.AFSpeed = AFSpeedNumericUpDown.Value;
+            Properties.Settings.Default.Save();
     }
 
-    private void MainForm_Load(object sender, EventArgs e)
+        private void SoundCheckBox_CheckedChanged(object sender, EventArgs e)
     {
-    }
+            Properties.Settings.Default.Sound = SoundCheckBox.Checked;
+            Properties.Settings.Default.Save();
+        }
 
-    private void SoundCheckBox_CheckedChanged(object sender, EventArgs e)
+    private void RadioBTNmodeReg_CheckedChanged(object sender, EventArgs e)
     {
-    }
+            Properties.Settings.Default.Regular = RadioBTNmodeReg.Checked;
+            Properties.Settings.Default.Save();
+            this.BackColor = SystemColors.Control;
+            FocalLengthNumericUpDown.BackColor = SystemColors.Control;
+            DiameterNumericUpDown.BackColor = SystemColors.Control;
+            PixelSizeNumericUpDown.BackColor = SystemColors.Control;
+            StatusBar.BackColor = SystemColors.Control;
+            lblNO.BackColor = SystemColors.Control;
+            lblYES.BackColor = SystemColors.Control;
+            str3aLabel.BackColor = SystemColors.Control;
+            str3bLabel.BackColor = SystemColors.Control;
+            str3cLabel.BackColor = SystemColors.Control;
+            BGMenu.BackColor = SystemColors.Control;
+            StepSizeNumericUpDown.BackColor = SystemColors.Control;
+            AFSpeedNumericUpDown.BackColor = SystemColors.Control;
+        }
+
+        private void RadioBTNmodeNight_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Night = RadioBTNmodeNight.Checked;
+            Properties.Settings.Default.Save();
+            this.BackColor = System.Drawing.Color.Red;
+            FocalLengthNumericUpDown.BackColor = System.Drawing.Color.Red;
+            DiameterNumericUpDown.BackColor = System.Drawing.Color.Red;
+            PixelSizeNumericUpDown.BackColor = System.Drawing.Color.Red;
+            StatusBar.BackColor = System.Drawing.Color.Red;
+            lblNO.BackColor = System.Drawing.Color.Black;
+            lblYES.BackColor = System.Drawing.Color.Black;
+            str3aLabel.BackColor = System.Drawing.Color.Black;
+            str3bLabel.BackColor = System.Drawing.Color.Black;
+            str3cLabel.BackColor = System.Drawing.Color.Black;
+            BGMenu.BackColor = System.Drawing.Color.Red;
+            StepSizeNumericUpDown.BackColor = System.Drawing.Color.Red;
+            AFSpeedNumericUpDown.BackColor = System.Drawing.Color.Red;
+        }
 
         private void AboutBTN_Click(object sender, EventArgs e)
         {
@@ -1318,7 +1663,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             Version applicationVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if(applicationVersion.CompareTo(newVersion) <0)
             {
-                DialogResult updateResult = MessageBox.Show("Version " + newVersion.Major + "." + newVersion.Minor + "." + newVersion.Build + " of Tri-Bahtinov Grabber is available" + "\n" + "Do you wish to download the update? Y/N", "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult updateResult = MessageBox.Show("Version " + newVersion.Major + "." + newVersion.Minor + " Build " + newVersion.Build + " of Tri-Bahtinov Grabber is available" + "\n" + "Do you wish to download the update? Y/N", "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (updateResult == DialogResult.Yes)
                 {
                     System.Diagnostics.Process.Start(downloadURL);
@@ -1333,34 +1678,85 @@ namespace Tri_Bahtinov_Grabber_Autofocus
                 MessageBox.Show("This application is currently up to date.", "No Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        private void RadioBTNmodeReg_CheckedChanged(object sender, EventArgs e)
+
+        private void EncryptConfigSection(string sectionKey)
         {
-            Application.UserAppDataRegistry.SetValue("RegularMode", (object)this.RadioBTNmodeReg.Checked);
-            this.BackColor = SystemColors.Control;
-            FocalLengthNumericUpDown.BackColor = SystemColors.Control;
-            DiameterNumericUpDown.BackColor = SystemColors.Control;
-            PixelSizeNumericUpDown.BackColor = SystemColors.Control;
-            StatusBar.BackColor = SystemColors.Control;
-            lblNO.BackColor = SystemColors.Control;
-            lblYES.BackColor = SystemColors.Control;
-            str3aLabel.BackColor = SystemColors.Control;
-            str3bLabel.BackColor = SystemColors.Control;
-            str3cLabel.BackColor = SystemColors.Control;
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            ConfigurationSection section = config.GetSection(sectionKey);
+            if (section != null)
+            {
+                if (!section.SectionInformation.IsProtected)
+                {
+                    if (!section.ElementInformation.IsLocked)
+                    {
+                        section.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
+                        section.SectionInformation.ForceSave = true;
+                        config.Save(ConfigurationSaveMode.Full);
+                    }
+                }
+            }
         }
 
-        private void RadioBTNmodeNight_CheckedChanged(object sender, EventArgs e)
+        private void AutoFocusBTN_Click(object sender, EventArgs e)
         {
-            Application.UserAppDataRegistry.SetValue("NightMode", (object)this.RadioBTNmodeNight.Checked);
-            this.BackColor = System.Drawing.Color.Red;
-            FocalLengthNumericUpDown.BackColor = System.Drawing.Color.Red;
-            DiameterNumericUpDown.BackColor = System.Drawing.Color.Red;
-            PixelSizeNumericUpDown.BackColor = System.Drawing.Color.Red;
-            StatusBar.BackColor = System.Drawing.Color.Red;
-            lblNO.BackColor = System.Drawing.Color.Black;
-            lblYES.BackColor = System.Drawing.Color.Black;
-            str3aLabel.BackColor = System.Drawing.Color.Black;
-            str3bLabel.BackColor = System.Drawing.Color.Black;
-            str3cLabel.BackColor = System.Drawing.Color.Black;
+            if (!this.FocuserConnected())
+                return;
+            if (this.autofocus == 0)
+                this.autofocus = 1;
+            else
+                this.autofocus = 0;
         }
-    }
+
+        private void ConnectToFocuserBTN_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!this.FocuserConnected())
+                    return;
+                this.Focuser.SetupDialog();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.ToString().Contains("Check Driver: cannot create object type of progID:")) ;
+                {
+                    MessageBox.Show("You Did Not Choose A Focuser From The List.", "Connection To Focuser Has Failed!", 0 , MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void OUTfocusBTN_Click(object sender, EventArgs e)
+        {
+            if (!this.FocuserConnected() || this.Focuser.IsMoving)
+                return;
+            this.Focuser.Move((int)this.StepSizeNumericUpDown.Value);
+        }
+
+        private void INfocusBTN_Click(object sender, EventArgs e)
+        {
+            if (!this.FocuserConnected() || !this.FocuserConnected() || this.Focuser.IsMoving)
+                return;
+            this.Focuser.Move((int)(-this.StepSizeNumericUpDown.Value));
+        }
+
+        private bool FocuserConnected()
+        {
+            if (this.Focuser == null)
+                this.Focuser = new SuperFocuser(ASCOM.DriverAccess.Focuser.Choose(""));
+            try
+            {
+                this.Focuser.Connected = true;
+                ConnectToFocuserBTN.Text = "*** CONNECTED ***";
+                INfocusBTN.Enabled = true;
+                OUTfocusBTN.Enabled = true;
+                StepSizeNumericUpDown.Enabled = true;
+                AutoFocusBTN.Enabled = true;
+                AFSpeedNumericUpDown.Enabled = true;
+            }
+            catch
+            {
+                int num = (int)MessageBox.Show("Problem Talking To The Focuser, Is It Connected?");
+            }
+            return this.Focuser != null;
+        }
+  }
 }

@@ -3,9 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Resources;
 
 
 namespace Tri_Bahtinov_Grabber_Autofocus
@@ -33,7 +31,8 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.MouseClick += new MouseEventHandler(this.mouse_Button);
             this.MyPen.DashStyle = DashStyle.Dash;
             this.g = this.CreateGraphics();
-          }
+            Cursor = precisionCursor;
+        }
 
         public static class CursorResourceLoader
         {
@@ -176,7 +175,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.TopMost = true;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
-            this.Cursor = precisionCursor;
         }
 
         private void mouse_Button(object sender, MouseEventArgs e)

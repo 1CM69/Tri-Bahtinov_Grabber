@@ -40,7 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -50,7 +50,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>ICON.ico</ApplicationIcon>
@@ -59,12 +59,14 @@
     <RootNamespace>Tri_Bahtinov_Grabber_Autofocus</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ASCOM.DriverAccess, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\ASCOM\Platform 6 Developer Components\Components\Platform6\ASCOM.DriverAccess.dll</HintPath>
+    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="ExtCursors">
-      <HintPath>..\..\ExtCursor_src\ExtCursor\bin\Release\ExtCursors.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System" />
@@ -75,6 +77,12 @@
     <Compile Include="AP\Complex.cs" />
     <Compile Include="AP\Math.cs" />
     <Compile Include="AP\rcommstate.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="Tri_Bahtinov_Grabber_Autofocus\About.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -112,6 +120,7 @@
     <Compile Include="Tri_Bahtinov_Grabber_Autofocus\Grabber.cs" />
     <Compile Include="Tri_Bahtinov_Grabber_Autofocus\LSQcalculator.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Tri_Bahtinov_Grabber_Autofocus\SuperFocuser.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Tri_Bahtinov_Grabber_Autofocus\About.resx">
@@ -140,6 +149,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
