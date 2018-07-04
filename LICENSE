@@ -1,5 +1,6 @@
 MIT License
 
+Copyright (c) 2012 Niels Noordhoek ORIGINAL AUTHOR R.I.P October 17th 2012 
 Copyright (c) 2017 Wytse Jan Posthumus FROM THE ORIGINAL SOURCE - https://github.com/wytsep/bahtinov-grabber
 Copyright (c) 2018 1CM69 Kirk Evans FOR THIS SOURCE
 
@@ -11,7 +12,7 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+copies or substantial portions of the Software in perpetuity.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
