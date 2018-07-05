@@ -10,5 +10,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Tri-Bahtinov Grabber")]
 [assembly: ComVisible(false)]
 [assembly: Guid("a5130b05-342c-49e1-835e-46db01a75f64")]
-[assembly: AssemblyFileVersion("2.0.2.0")]
-[assembly: AssemblyVersion("2.0.2.0")]
+[assembly: AssemblyFileVersion("2.0.4.0")]
+[assembly: AssemblyVersion("2.0.4.0")]

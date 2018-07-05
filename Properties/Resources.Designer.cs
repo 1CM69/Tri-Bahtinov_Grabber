@@ -61,6 +61,16 @@ namespace Tri_Bahtinov_Grabber_Autofocus.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PP_Donate {
+            get {
+                object obj = ResourceManager.GetObject("PP_Donate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] Precision {

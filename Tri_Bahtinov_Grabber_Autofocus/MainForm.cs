@@ -18,11 +18,11 @@ namespace Tri_Bahtinov_Grabber_Autofocus
   {
     //***********************************
     //***********************************
-    //**** THIS RELEASE IS v2.0.2.0 ****
+    //**** THIS RELEASE IS v2.0.4.0 ****
     //***********************************
     //****** REMEMBER TO EDIT THIS ******
     //***********************************
-    const string DeleteThisVersionDirectory = "2.0.1.0"; //**** Set this to the <Program Version> Directory to be Deleted on Upgrade, usually version prior to new release. ****
+    const string DeleteThisVersionDirectory = "2.0.3.0"; //**** Set this to the <Program Version> Directory to be Deleted on Upgrade, usually version prior to new release. ****
     //***********************************
     //***********************************
     private static int num_errorvalues = 150;
@@ -91,7 +91,13 @@ namespace Tri_Bahtinov_Grabber_Autofocus
     private ToolStripMenuItem MenuAbout;
     private ToolStripMenuItem MenuUpdate;
     private Label AutoFocusSpeedLBL;
-    private int errorcounter;
+        private ToolStripMenuItem MenuDonate;
+        private ToolStripMenuItem MenuTools;
+        private ToolStripMenuItem MenuV1MaskGen;
+        private ToolStripMenuItem MenuV1MaskCovGen;
+        private ToolStripMenuItem MenuV2MaskGen;
+        private ToolStripMenuItem MenuV2MaskCovGen;
+        private int errorcounter;
     
     public MainForm()
         {
@@ -162,6 +168,12 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.MenuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuUpdate = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuDonate = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuTools = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuV1MaskGen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuV1MaskCovGen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuV2MaskGen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuV2MaskCovGen = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.ScopeCamSetupGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PixelSizeNumericUpDown)).BeginInit();
@@ -694,7 +706,9 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.BGMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.MenuHelp,
             this.MenuAbout,
-            this.MenuUpdate});
+            this.MenuUpdate,
+            this.MenuTools,
+            this.MenuDonate});
             this.BGMenu.Location = new System.Drawing.Point(0, 0);
             this.BGMenu.Name = "BGMenu";
             this.BGMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -704,6 +718,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             // MenuHelp
             // 
+            this.MenuHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.MenuHelp.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.MenuHelp.Name = "MenuHelp";
             this.MenuHelp.Size = new System.Drawing.Size(45, 20);
@@ -712,6 +727,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             // MenuAbout
             // 
+            this.MenuAbout.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.MenuAbout.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.MenuAbout.Name = "MenuAbout";
             this.MenuAbout.Size = new System.Drawing.Size(53, 20);
@@ -720,11 +736,75 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             // 
             // MenuUpdate
             // 
+            this.MenuUpdate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.MenuUpdate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.MenuUpdate.Name = "MenuUpdate";
             this.MenuUpdate.Size = new System.Drawing.Size(118, 20);
             this.MenuUpdate.Text = "Check For Update";
             this.MenuUpdate.Click += new System.EventHandler(this.UpdateBTN_Click);
+            // 
+            // MenuDonate
+            // 
+            this.MenuDonate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuDonate.Image = global::Tri_Bahtinov_Grabber_Autofocus.Properties.Resources.PP_Donate;
+            this.MenuDonate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.MenuDonate.Name = "MenuDonate";
+            this.MenuDonate.Size = new System.Drawing.Size(75, 20);
+            this.MenuDonate.Text = "Donate";
+            this.MenuDonate.Click += new System.EventHandler(this.MenuDonate_Click);
+            // 
+            // MenuTools
+            // 
+            this.MenuTools.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.MenuTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuV1MaskGen,
+            this.MenuV1MaskCovGen,
+            this.MenuV2MaskGen,
+            this.MenuV2MaskCovGen});
+            this.MenuTools.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuTools.Name = "MenuTools";
+            this.MenuTools.Size = new System.Drawing.Size(47, 20);
+            this.MenuTools.Text = "Tools";
+            // 
+            // MenuV1MaskGen
+            // 
+            this.MenuV1MaskGen.BackColor = System.Drawing.Color.Red;
+            this.MenuV1MaskGen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.MenuV1MaskGen.Name = "MenuV1MaskGen";
+            this.MenuV1MaskGen.Size = new System.Drawing.Size(375, 22);
+            this.MenuV1MaskGen.Text = "Tri-Bahtinov Mask Drawing Generator";
+            this.MenuV1MaskGen.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.MenuV1MaskGen.Click += new System.EventHandler(this.MenuV1MaskGen_Click);
+            // 
+            // MenuV1MaskCovGen
+            // 
+            this.MenuV1MaskCovGen.BackColor = System.Drawing.Color.Red;
+            this.MenuV1MaskCovGen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.MenuV1MaskCovGen.Name = "MenuV1MaskCovGen";
+            this.MenuV1MaskCovGen.Size = new System.Drawing.Size(375, 22);
+            this.MenuV1MaskCovGen.Text = "Tri-Bahtinov Mask Cover Drawing Generator";
+            this.MenuV1MaskCovGen.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.MenuV1MaskCovGen.Click += new System.EventHandler(this.MenuV1MaskCovGen_Click);
+            // 
+            // MenuV2MaskGen
+            // 
+            this.MenuV2MaskGen.BackColor = System.Drawing.Color.Red;
+            this.MenuV2MaskGen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.MenuV2MaskGen.Name = "MenuV2MaskGen";
+            this.MenuV2MaskGen.Size = new System.Drawing.Size(375, 22);
+            this.MenuV2MaskGen.Text = "Modified Tri-Bahtinov Mask Drawing Generator";
+            this.MenuV2MaskGen.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.MenuV2MaskGen.Click += new System.EventHandler(this.MenuV2MaskGen_Click);
+            // 
+            // MenuV2MaskCovGen
+            // 
+            this.MenuV2MaskCovGen.BackColor = System.Drawing.Color.Red;
+            this.MenuV2MaskCovGen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.MenuV2MaskCovGen.Name = "MenuV2MaskCovGen";
+            this.MenuV2MaskCovGen.Size = new System.Drawing.Size(375, 22);
+            this.MenuV2MaskCovGen.Text = "Modified Tri-Bahtinov Mask Cover Drawing Generator";
+            this.MenuV2MaskCovGen.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.MenuV2MaskCovGen.Click += new System.EventHandler(this.MenuV2MaskCovGen_Click);
             // 
             // MainForm
             // 
@@ -779,6 +859,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.BGMenu.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
+
        }
 
         private void ApplicationUpdate()
@@ -1577,6 +1658,10 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             BGMenu.BackColor = SystemColors.Control;
             StepSizeNumericUpDown.BackColor = SystemColors.Control;
             AFSpeedNumericUpDown.BackColor = SystemColors.Control;
+            MenuV1MaskGen.BackColor = SystemColors.Control;
+            MenuV1MaskCovGen.BackColor = SystemColors.Control;
+            MenuV2MaskGen.BackColor = SystemColors.Control;
+            MenuV2MaskCovGen.BackColor = SystemColors.Control;
         }
 
         private void RadioBTNmodeNight_CheckedChanged(object sender, EventArgs e)
@@ -1596,6 +1681,10 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             BGMenu.BackColor = System.Drawing.Color.Red;
             StepSizeNumericUpDown.BackColor = System.Drawing.Color.Red;
             AFSpeedNumericUpDown.BackColor = System.Drawing.Color.Red;
+            MenuV1MaskGen.BackColor = System.Drawing.Color.Red;
+            MenuV1MaskCovGen.BackColor = System.Drawing.Color.Red;
+            MenuV2MaskGen.BackColor = System.Drawing.Color.Red;
+            MenuV2MaskCovGen.BackColor = System.Drawing.Color.Red;
         }
 
         private void AboutBTN_Click(object sender, EventArgs e)
@@ -1679,6 +1768,11 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             }
         }
 
+        private void MenuDonate_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7QK9RUBLG7RGY");
+        }
+
         private void EncryptConfigSection(string sectionKey)
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
@@ -1758,5 +1852,25 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             }
             return this.Focuser != null;
         }
-  }
+
+        private void MenuV1MaskGen_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://svg2.mbsrv.net/astro/Tri-Bahtinov.html");
+        }
+
+        private void MenuV1MaskCovGen_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://svg2.mbsrv.net/astro/GrabberCover.html");
+        }
+
+        private void MenuV2MaskGen_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://svg2.mbsrv.net/astro/Tri-Bahtinov_symmetric.html");
+        }
+
+        private void MenuV2MaskCovGen_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://svg2.mbsrv.net/astro/GrabberCover2.html");
+        }
+    }
 }
