@@ -16,15 +16,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
 {
   public class MainForm : Form
   {
-    //***********************************
-    //***********************************
-    //**** THIS RELEASE IS v2.0.4.0 ****
-    //***********************************
-    //****** REMEMBER TO EDIT THIS ******
-    //***********************************
-    const string DeleteThisVersionDirectory = "2.0.3.0"; //**** Set this to the <Program Version> Directory to be Deleted on Upgrade, usually version prior to new release. ****
-    //***********************************
-    //***********************************
     private static int num_errorvalues = 150;
     private int yzero = 1;
     private float errortarget = 0.25f;
@@ -97,6 +88,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         private ToolStripMenuItem MenuV1MaskCovGen;
         private ToolStripMenuItem MenuV2MaskGen;
         private ToolStripMenuItem MenuV2MaskCovGen;
+        private Button DisconnectFromFocuserBTN;
         private int errorcounter;
     
     public MainForm()
@@ -168,12 +160,13 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.MenuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuUpdate = new System.Windows.Forms.ToolStripMenuItem();
-            this.MenuDonate = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuTools = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuV1MaskGen = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuV1MaskCovGen = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuV2MaskGen = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuV2MaskCovGen = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuDonate = new System.Windows.Forms.ToolStripMenuItem();
+            this.DisconnectFromFocuserBTN = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.ScopeCamSetupGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PixelSizeNumericUpDown)).BeginInit();
@@ -588,7 +581,8 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.ConnectToFocuserBTN.Name = "ConnectToFocuserBTN";
             this.ConnectToFocuserBTN.Size = new System.Drawing.Size(168, 20);
             this.ConnectToFocuserBTN.TabIndex = 5;
-            this.ConnectToFocuserBTN.Text = "CONNECT TO FOCUSER";
+            this.ConnectToFocuserBTN.TabStop = false;
+            this.ConnectToFocuserBTN.Text = "***** CONNECT *****";
             this.ConnectToFocuserBTN.UseVisualStyleBackColor = true;
             this.ConnectToFocuserBTN.Click += new System.EventHandler(this.ConnectToFocuserBTN_Click);
             // 
@@ -743,16 +737,6 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.MenuUpdate.Text = "Check For Update";
             this.MenuUpdate.Click += new System.EventHandler(this.UpdateBTN_Click);
             // 
-            // MenuDonate
-            // 
-            this.MenuDonate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.MenuDonate.Image = global::Tri_Bahtinov_Grabber_Autofocus.Properties.Resources.PP_Donate;
-            this.MenuDonate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.MenuDonate.Name = "MenuDonate";
-            this.MenuDonate.Size = new System.Drawing.Size(75, 20);
-            this.MenuDonate.Text = "Donate";
-            this.MenuDonate.Click += new System.EventHandler(this.MenuDonate_Click);
-            // 
             // MenuTools
             // 
             this.MenuTools.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -806,12 +790,38 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             this.MenuV2MaskCovGen.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.MenuV2MaskCovGen.Click += new System.EventHandler(this.MenuV2MaskCovGen_Click);
             // 
+            // MenuDonate
+            // 
+            this.MenuDonate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.MenuDonate.Image = global::Tri_Bahtinov_Grabber_Autofocus.Properties.Resources.PP_Donate;
+            this.MenuDonate.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.MenuDonate.Name = "MenuDonate";
+            this.MenuDonate.Size = new System.Drawing.Size(75, 20);
+            this.MenuDonate.Text = "Donate";
+            this.MenuDonate.Click += new System.EventHandler(this.MenuDonate_Click);
+            // 
+            // DisconnectFromFocuserBTN
+            // 
+            this.DisconnectFromFocuserBTN.Enabled = false;
+            this.DisconnectFromFocuserBTN.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.DisconnectFromFocuserBTN.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DisconnectFromFocuserBTN.Location = new System.Drawing.Point(19, 427);
+            this.DisconnectFromFocuserBTN.Name = "DisconnectFromFocuserBTN";
+            this.DisconnectFromFocuserBTN.Size = new System.Drawing.Size(168, 20);
+            this.DisconnectFromFocuserBTN.TabIndex = 10;
+            this.DisconnectFromFocuserBTN.TabStop = false;
+            this.DisconnectFromFocuserBTN.Text = "***** DISCONNECT *****";
+            this.DisconnectFromFocuserBTN.UseVisualStyleBackColor = true;
+            this.DisconnectFromFocuserBTN.Visible = false;
+            this.DisconnectFromFocuserBTN.Click += new System.EventHandler(this.DisconnectFromFocuserBTN_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
             this.ClientSize = new System.Drawing.Size(518, 633);
+            this.Controls.Add(this.DisconnectFromFocuserBTN);
             this.Controls.Add(this.FocusControlGroupBox);
             this.Controls.Add(this.groupboxMode);
             this.Controls.Add(this.StatusBar);
@@ -865,7 +875,9 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         private void ApplicationUpdate()
         {
             string FullfilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
-            string VersionDirectoryfilePath = Path.GetFullPath(Path.Combine(FullfilePath, @"..\..\" + DeleteThisVersionDirectory));
+            string ParentOfVersionDirectoryPath = Path.GetFullPath(Path.Combine(FullfilePath, @"..\..\"));
+            string[] VersionDirectories = Directory.GetDirectories(ParentOfVersionDirectoryPath);
+            
             if (Properties.Settings.Default.UpdateSettings)
             {
                 try
@@ -873,7 +885,14 @@ namespace Tri_Bahtinov_Grabber_Autofocus
                     Properties.Settings.Default.Upgrade();
                     Properties.Settings.Default.UpdateSettings = false;
                     Properties.Settings.Default.Save();
-                    Directory.Delete(VersionDirectoryfilePath, true);
+                    foreach (string DoesNotMatchCurrentVersion in VersionDirectories)
+                    {
+                        if (DoesNotMatchCurrentVersion != ParentOfVersionDirectoryPath + Application.ProductVersion)
+                        {
+                            Directory.Delete(DoesNotMatchCurrentVersion, true);
+                        }
+                    }
+                    
                 }
                 catch{}
             }
@@ -1818,6 +1837,20 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             }
         }
 
+        private void DisconnectFromFocuserBTN_Click(object sender, EventArgs e)
+        {
+            this.Focuser.Connected = false;
+            DisconnectFromFocuserBTN.Visible = false;
+            DisconnectFromFocuserBTN.Enabled = false;
+            ConnectToFocuserBTN.Visible = true;
+            ConnectToFocuserBTN.Enabled = true;
+            INfocusBTN.Enabled = false;
+            OUTfocusBTN.Enabled = false;
+            StepSizeNumericUpDown.Enabled = false;
+            AutoFocusBTN.Enabled = false;
+            AFSpeedNumericUpDown.Enabled = false;
+        }
+
         private void OUTfocusBTN_Click(object sender, EventArgs e)
         {
             if (!this.FocuserConnected() || this.Focuser.IsMoving)
@@ -1839,7 +1872,10 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             try
             {
                 this.Focuser.Connected = true;
-                ConnectToFocuserBTN.Text = "*** CONNECTED ***";
+                ConnectToFocuserBTN.Visible = false;
+                ConnectToFocuserBTN.Enabled = false;
+                DisconnectFromFocuserBTN.Visible = true;
+                DisconnectFromFocuserBTN.Enabled = true;
                 INfocusBTN.Enabled = true;
                 OUTfocusBTN.Enabled = true;
                 StepSizeNumericUpDown.Enabled = true;
@@ -1848,7 +1884,10 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             }
             catch
             {
-                int num = (int)MessageBox.Show("Problem Talking To The Focuser, Is It Connected?");
+                int num = (int)MessageBox.Show("You Have To Pick An ASCOM Focuser From The Drop Down List!", "Incompatible Focuser - Connection Failed", 0, MessageBoxIcon.Error);
+                this.Focuser.Dispose();
+                this.Focuser = new SuperFocuser(ASCOM.DriverAccess.Focuser.Choose(""));
+                ConnectToFocuserBTN.PerformClick();
             }
             return this.Focuser != null;
         }
@@ -1872,5 +1911,7 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         {
             System.Diagnostics.Process.Start("http://svg2.mbsrv.net/astro/GrabberCover2.html");
         }
+
+        
     }
 }
