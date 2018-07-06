@@ -1824,9 +1824,9 @@ namespace Tri_Bahtinov_Grabber_Autofocus
         {
             try
             {
+                this.Focuser = null;
                 if (!this.FocuserConnected())
                     return;
-                this.Focuser.SetupDialog();
             }
             catch (Exception ex)
             {
@@ -1839,16 +1839,16 @@ namespace Tri_Bahtinov_Grabber_Autofocus
 
         private void DisconnectFromFocuserBTN_Click(object sender, EventArgs e)
         {
-            this.Focuser.Connected = false;
-            DisconnectFromFocuserBTN.Visible = false;
-            DisconnectFromFocuserBTN.Enabled = false;
-            ConnectToFocuserBTN.Visible = true;
-            ConnectToFocuserBTN.Enabled = true;
-            INfocusBTN.Enabled = false;
-            OUTfocusBTN.Enabled = false;
-            StepSizeNumericUpDown.Enabled = false;
-            AutoFocusBTN.Enabled = false;
-            AFSpeedNumericUpDown.Enabled = false;
+                this.Focuser.Connected = false;
+                DisconnectFromFocuserBTN.Visible = false;
+                DisconnectFromFocuserBTN.Enabled = false;
+                ConnectToFocuserBTN.Visible = true;
+                ConnectToFocuserBTN.Enabled = true;
+                INfocusBTN.Enabled = false;
+                OUTfocusBTN.Enabled = false;
+                StepSizeNumericUpDown.Enabled = false;
+                AutoFocusBTN.Enabled = false;
+                AFSpeedNumericUpDown.Enabled = false;
         }
 
         private void OUTfocusBTN_Click(object sender, EventArgs e)
@@ -1885,9 +1885,8 @@ namespace Tri_Bahtinov_Grabber_Autofocus
             catch
             {
                 int num = (int)MessageBox.Show("You Have To Pick An ASCOM Focuser From The Drop Down List!", "Incompatible Focuser - Connection Failed", 0, MessageBoxIcon.Error);
+                this.Focus();
                 this.Focuser.Dispose();
-                this.Focuser = new SuperFocuser(ASCOM.DriverAccess.Focuser.Choose(""));
-                ConnectToFocuserBTN.PerformClick();
             }
             return this.Focuser != null;
         }
