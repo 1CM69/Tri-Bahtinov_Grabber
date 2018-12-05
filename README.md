@@ -2,7 +2,7 @@
 
 Written in C# using Microsoft Visual Studio 2017
 
-Based on the Bahtinov grabber created by the late Niels Noordhoek. 
+Based on the Bahtinov grabber created by the late Niels Noordhoek - blog here: http://www.njnoordhoek.com/
 
 The source code was secured by Wytse Jan Posthumus, here: https://github.com/wytsep/bahtinov-grabber 
 
